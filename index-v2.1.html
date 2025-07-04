@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2048 Game v2.1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Varela+Round&family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@400;500;600;700;800&family=Righteous&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-layer-2"></div>
+    <div class="container">
+        <h1>2048 <small style="font-size: 0.4em; color: #dda0dd; opacity: 0.8;">v2.1</small></h1>
+        
+        <!-- 3つの一様なボックスが一列に並ぶレイアウト -->
+        <div class="header-container">
+            <div class="control-box">
+                <div>スコア</div>
+                <div id="score">0</div>
+            </div>
+            <div class="control-box">
+                <div>ベスト</div>
+                <div id="best">0</div>
+            </div>
+            <div class="control-box control-box--button" onclick="newGame()">
+                <div>新しい<br>ゲーム</div>
+            </div>
+        </div>
+        
+        <div class="game-container">
+            <div class="grid-container" id="game-grid">
+                <!-- 4x4 grid cells will be generated here -->
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <strong>🎮 操作方法</strong><br>
+            矢印キー・WASDキー・スワイプ でタイルを移動<br>
+            同じ数字のタイルを合体させて高得点を目指そう！
+        </div>
+        
+        <div style="margin-top: 20px; font-size: 12px; color: #8e44ad; opacity: 0.6;">
+            Version 2.1 - UI統一・レイアウト最適化版
+        </div>
+    </div>
+
+    <!-- v2.1 クラスの読み込み -->
+    <script src="game-config.js"></script>
+    <script src="game-engine-fixed.js"></script>
+    <script src="game-renderer-v2.js"></script>
+    <script src="game-animation.js"></script>
+    <script src="game-controller-fixed.js"></script>
+    
+    <script>
+        // Game 2048 v2.1
+        class Game2048 {
+            constructor() {
+                this.version = '2.1';
+                this.engine = new GameEngine(4);
+                this.renderer = new GameRenderer('game-grid', 'score', 'best');
+                this.animation = new GameAnimation(this.renderer.gameGridElement);
+                this.controller = new GameController(this.engine, this.renderer, this.animation);
+            }
+
+            restart() {
+                this.controller.restart();
+            }
+
+            getGameState() {
+                return this.controller.getGameState();
+            }
+
+            getStatistics() {
+                return this.controller.getGameStatistics();
+            }
+
+            getVersion() {
+                return this.version;
+            }
+
+            // デバッグ用
+            debug() {
+                console.log(`🎮 2048 Game v${this.version}`);
+                console.log('Game State:', this.getGameState());
+                console.log('Statistics:', this.getStatistics());
+                this.controller.printGrid();
+            }
+        }
+
+        // グローバル変数
+        let game;
+
+        function newGame() {
+            if (game) {
+                game.restart();
+            } else {
+                game = new Game2048();
+            }
+        }
+
+        // ページ読み込み時の初期化
+        window.addEventListener('DOMContentLoaded', function() {
+            try {
+                game = new Game2048();
+                console.log(`✅ 2048 Game v${game.getVersion()} が正常に初期化されました`);
+                console.log('🎯 v2.1の改善点:');
+                console.log('   - 3つの統一コントロールボックス');
+                console.log('   - 一列レイアウト');
+                console.log('   - ボタンテキスト改行対応');
+            } catch (error) {
+                console.error('❌ ゲーム初期化エラー:', error);
+            }
+        });
+    </script>
+
+    <style>
+        /* v2.1 統一レイアウト */
+        .header-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .control-box {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 240, 255, 0.9) 100%);
+            color: #8e44ad;
+            padding: 15px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            box-shadow: 0 8px 25px rgba(155, 89, 182, 0.2);
+            border: 2px solid rgba(221, 160, 221, 0.4);
+            backdrop-filter: blur(15px);
+            text-align: center;
+            min-width: 90px;
+            min-height: 70px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .control-box--button {
+            cursor: pointer;
+            user-select: none;
+            font-size: 14px;
+            line-height: 1.2;
+        }
+
+        .control-box--button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(155, 89, 182, 0.3);
+        }
+
+        .control-box--button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.2);
+        }
+
+        .control-box div:first-child {
+            font-size: 13px;
+            margin-bottom: 3px;
+            opacity: 0.9;
+        }
+
+        .control-box div:last-child {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .control-box--button div {
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            margin-bottom: 0 !important;
+        }
+
+        /* モバイル対応 */
+        @media (max-width: 600px) {
+            .header-container {
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+            
+            .control-box {
+                padding: 12px 15px;
+                min-width: 80px;
+                min-height: 60px;
+            }
+            
+            .control-box div:first-child {
+                font-size: 12px;
+            }
+            
+            .control-box div:last-child {
+                font-size: 16px;
+            }
+            
+            .control-box--button div {
+                font-size: 12px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-container {
+                gap: 8px;
+            }
+            
+            .control-box {
+                padding: 10px 12px;
+                min-width: 70px;
+                min-height: 55px;
+            }
+            
+            .control-box div:first-child {
+                font-size: 11px;
+            }
+            
+            .control-box div:last-child {
+                font-size: 14px;
+            }
+            
+            .control-box--button div {
+                font-size: 11px !important;
+            }
+        }
+
+        /* 横向きモバイル対応 */
+        @media (max-width: 800px) and (orientation: landscape) {
+            .control-box {
+                min-width: 70px;
+                min-height: 50px;
+                padding: 8px 12px;
+            }
+            
+            .control-box div:first-child {
+                font-size: 11px;
+            }
+            
+            .control-box div:last-child {
+                font-size: 14px;
+            }
+            
+            .control-box--button div {
+                font-size: 11px !important;
+            }
+        }
+    </style>
+</body>
+</html>
